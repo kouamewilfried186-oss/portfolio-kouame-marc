@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+         :root{
+      --bg0:#05070d;
+      --bg1:#070a12;
+      --card:#0b1020cc;      /* glass */
+      --card2:#0b1020f2;
+      --stroke:rgba(255,255,255,.10);
+      --stroke2:rgba(255,255,255,.14);
+
+      --txt:#eaf0ff;
+      --muted:rgba(234,240,255,.70);
+
+      --accent1:#7c3aed;     /* violet */
+      --accent2:#06b6d4;     /* cyan */
+      --accent3:#22c55e;     /* green */
+      --danger:#fb7185;
+
+      --shadow: 0 24px 70px rgba(0,0,0,.55);
+      --shadow2: 0 10px 30px rgba(0,0,0,.35);
+
+      --r16:16px;
+      --r20:20px;
+      --r28:28px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+      color:var(--txt);
+      background:
+        radial-gradient(1100px 700px at 10% 10%, rgba(124,58,237,.30), transparent 60%),
+        radial-gradient(900px 600px at 90% 20%, rgba(6,182,212,.22), transparent 60%),
+        radial-gradient(900px 700px at 60% 100%, rgba(34,197,94,.14), transparent 65%),
+        linear-gradient(180deg, var(--bg0), var(--bg1) 70%, #03040a);
+      overflow-x:hidden;
+    }
+
+    /* Animated subtle noise + moving aurora */
+    .bgfx{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:-2;
+      opacity:.9;
+    }
+    .bgfx::before{
+      content:"";
+      position:absolute; inset:-30%;
+      background:
+        radial-gradient(closest-side at 30% 30%, rgba(124,58,237,.30), transparent 55%),
+        radial-gradient(closest-side at 70% 20%, rgba(6,182,212,.24), transparent 52%),
+        radial-gradient(closest-side at 60% 70%, rgba(34,197,94,.14), transparent 55%);
+      filter: blur(40px);
+      transform: translate3d(0,0,0);
+      animation: drift 14s ease-in-out infinite alternate;
+      opacity:.9;
+    }
+    .bgfx::after{
+      content:"";
+      position:absolute; inset:0;
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.25'/%3E%3C/svg%3E");
+      opacity:.06;
+      mix-blend-mode: overlay;
+    }
+    @keyframes drift{
+      0%{ transform: translate(-2%, -1%) scale(1.02); }
+      100%{ transform: translate(2%, 1%) scale(1.04); }
+    }
+
+    .wrap{
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 28px 16px 60px;
+    }
+
+    /* Top toolbar */
+    .toolbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom: 16px;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.06);
+      border-radius: 999px;
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow2);
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing:.02em;
+    }
+    .dot{
+      width:10px; height:10px; border-radius:999px;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      box-shadow: 0 0 0 3px rgba(124,58,237,.18), 0 0 22px rgba(6,182,212,.22);
+    }
+    .actions{
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+    .btn{
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.06);
+      color: var(--txt);
+      padding:10px 12px;
+      border-radius: 12px;
+      cursor:pointer;
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow2);
+      font-weight: 650;
+      letter-spacing:.02em;
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      border-color: var(--stroke2);
+      background: rgba(255,255,255,.085);
+    }
+
+    /* ---------------------------
+       CV Card (Glass + Neon)
+    ----------------------------*/
+    .cv{
+      position:relative;
+      border-radius: var(--r28);
+      overflow:hidden;
+      border: 1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
+      box-shadow: var(--shadow);
+      display:grid;
+      grid-template-columns: 360px 1fr;
+      min-height: 900px;
+      isolation:isolate;
+    }
+    .cv::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(800px 500px at 15% 15%, rgba(124,58,237,.25), transparent 60%),
+        radial-gradient(700px 520px at 90% 10%, rgba(6,182,212,.18), transparent 62%),
+        radial-gradient(650px 500px at 60% 105%, rgba(34,197,94,.12), transparent 65%);
+      filter: blur(18px);
+      z-index:-1;
+    }
+    .cv::after{
+      content:"";
+      position:absolute; inset:0;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.06), transparent 28%),
+        radial-gradient(1000px 700px at 0% 30%, rgba(255,255,255,.05), transparent 55%);
+      z-index:-1;
+    }
+
+    /* Sidebar */
+    aside{
+      padding: 30px 22px;
+      background: linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.25));
+      border-right: 1px solid rgba(255,255,255,.08);
+    }
+
+    .profile{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:14px;
+      padding: 6px 8px 18px;
+    }
+
+    .avatar{
+      width: 180px;
+      height: 180px;
+      border-radius: 999px;
+      position:relative;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      overflow:hidden;
+      box-shadow:
+        0 0 0 6px rgba(124,58,237,.10),
+        0 0 0 12px rgba(6,182,212,.06),
+        0 20px 50px rgba(0,0,0,.55);
+    }
+    .avatar::before{
+      content:"";
+      position:absolute; inset:-20%;
+      background: conic-gradient(from 220deg, rgba(124,58,237,.55), rgba(6,182,212,.45), rgba(34,197,94,.35), rgba(124,58,237,.55));
+      filter: blur(10px);
+      opacity:.50;
+      animation: spin 10s linear infinite;
+    }
+    @keyframes spin{ to{ transform: rotate(360deg); } }
+    .avatar img{
+      position:absolute; inset:0;
+      width:100%; height:100%;
+      object-fit:cover;
+      transform: scale(1.02);
+    }
+    .avatar .placeholder{
+      position:absolute; inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight: 800;
+      letter-spacing:.06em;
+      color: rgba(255,255,255,.85);
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.14), transparent 55%),
+        radial-gradient(circle at 70% 80%, rgba(255,255,255,.08), transparent 60%);
+    }
+
+    .side-block{
+      margin-top: 18px;
+      padding: 14px 14px;
+      border-radius: var(--r20);
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      backdrop-filter: blur(10px);
+    }
+    .side-title{
+      margin:0 0 10px;
+      font-size: 12px;
+      letter-spacing:.18em;
+      text-transform: uppercase;
+      color: rgba(234,240,255,.90);
+      font-weight: 900;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .side-title::before{
+      content:"";
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      box-shadow: 0 0 18px rgba(124,58,237,.20);
+      flex:0 0 auto;
+    }
+    .side-list{
+      margin:0;
+      padding:0;
+      list-style:none;
+      font-size: 14px;
+      color: rgba(234,240,255,.86);
+      line-height: 1.55;
+    }
+    .side-list li{ margin: 7px 0; }
+    .side-muted{ color: var(--muted); }
+
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .chip{
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      font-size: 12.5px;
+      color: rgba(234,240,255,.9);
+      transition: transform .15s ease, border-color .15s ease;
+    }
+    .chip:hover{
+      transform: translateY(-1px);
+      border-color: rgba(255,255,255,.20);
+    }
+
+    .contact a{
+      color: rgba(234,240,255,.92);
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(255,255,255,.35);
+    }
+    .contact a:hover{
+      border-bottom-color: rgba(255,255,255,.7);
+    }
+
+    /* Main */
+    main{
+      padding: 34px 34px 30px;
+    }
+    .headline{
+      padding: 20px 22px;
+      border-radius: var(--r28);
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 18px 50px rgba(0,0,0,.35);
+      position:relative;
+      overflow:hidden;
+    }
+    .headline::after{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(700px 220px at 10% 0%, rgba(124,58,237,.22), transparent 60%),
+        radial-gradient(700px 220px at 90% 0%, rgba(6,182,212,.18), transparent 60%);
+      pointer-events:none;
+      filter: blur(14px);
+    }
+
+    h1{
+      margin:0;
+      font-size: 36px;
+      line-height:1.05;
+      letter-spacing:.02em;
+      text-transform: uppercase;
+      position:relative;
+      z-index:1;
+    }
+    .role{
+      margin: 10px 0 0;
+      font-size: 13px;
+      letter-spacing:.22em;
+      text-transform: uppercase;
+      color: rgba(234,240,255,.85);
+      font-weight: 800;
+      position:relative;
+      z-index:1;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .card{
+      border-radius: var(--r28);
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 16px 42px rgba(0,0,0,.28);
+      padding: 18px 18px;
+      position:relative;
+      overflow:hidden;
+      transition: transform .18s ease, border-color .18s ease;
+    }
+    .card:hover{
+      transform: translateY(-2px);
+      border-color: rgba(255,255,255,.18);
+    }
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background: radial-gradient(800px 180px at 20% 0%, rgba(255,255,255,.06), transparent 60%);
+      pointer-events:none;
+    }
+
+    .section-title{
+      margin:0 0 10px;
+      font-size: 12px;
+      letter-spacing:.20em;
+      text-transform: uppercase;
+      font-weight: 950;
+      color: rgba(234,240,255,.92);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .section-title .line{
+      height:1px;
+      flex:1;
+      background: linear-gradient(90deg, rgba(255,255,255,.24), rgba(255,255,255,.06));
+      border-radius: 1px;
+      opacity:.9;
+    }
+
+    .timeline{
+      margin: 0;
+      padding: 0 0 0 22px;
+      position: relative;
+    }
+    .timeline::before{
+      content:"";
+      position:absolute;
+      left: 8px;
+      top: 6px;
+      bottom: 6px;
+      width: 2px;
+      background: linear-gradient(180deg, rgba(124,58,237,.8), rgba(6,182,212,.6), rgba(34,197,94,.5));
+      border-radius: 2px;
+      opacity:.9;
+    }
+    .item{
+      position:relative;
+      padding: 8px 0 10px;
+    }
+    .item::before{
+      content:"";
+      position:absolute;
+      left: -1px;
+      top: 18px;
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+     
+      
+    }
+
+    ul.bullets{
+      margin: 0;
+      padding-left: 18px;
+      line-height: 1.6;
+      color: rgba(234,240,255,.90);
+    }
+    ul.bullets li{ margin: 7px 0; }
+    .muted{ color: var(--muted); }
+
+    .credly{
+      color: rgba(251,113,133,.95);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(251,113,133,.35);
+      word-break: break-word;
+    }
+    .credly:hover{ border-bottom-color: rgba(251,113,133,.8); }
+
+    /* Responsive */
+    @media (max-width: 900px){
+      .cv{ grid-template-columns: 1fr; }
+      aside{ border-right:none; border-bottom:1px solid rgba(255,255,255,.08); }
+      main{ padding: 20px 16px 22px; }
+      .headline{ padding: 16px 16px; }
+      h1{ font-size: 28px; }
+      .avatar{ width: 160px; height: 160px; }
+    }
+
+    /* Reduce motion */
+    @media (prefers-reduced-motion: reduce){
+      .bgfx::before, .avatar::before{ animation:none; }
+      .card, .btn, .chip{ transition:none; }
+    }
+
+    /* Print */
+    @media print{
+      body{
+        background:#fff;
+        color:#111;
+      }
+      .bgfx, .toolbar{ display:none !important; }
+      .wrap{ padding:0; }
+      .cv{
+        box-shadow:none;
+        border:1px solid #ddd;
+        background:#fff;
+      }
+      aside{
+        background:#111;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .card, .headline, .side-block{
+        background:#fff;
+        color:#111;
+        border-color:#e5e7eb;
+        box-shadow:none;
+      }
+      .section-title, .muted, ul.bullets{ color:#111; }
+      .timeline::before{ background:#111; }
+      .item::before{ background:#111; box-shadow:none; }
+      .credly{ color:#111; border-bottom:none; text-decoration: underline; }
+      .contact a{ color:#fff; border-bottom:none; text-decoration: underline; }
+    }
+    </style>
+</head>
+<body>
+    <div class="bgfx" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <div class="toolbar">
+      <div class="badge"><span class="dot"></span> Mon Portfolios</div>
+      <div class="actions">
+        <button class="btn" type="button" onclick="window.print()">Imprimer / PDF</button>
+      </div>
+    </div>
+
+    <div class="cv">
+      <aside>
+        <div class="profile">
+          <div class="avatar" aria-label="Photo de profil">
+            <!-- Mets ta photo ici : remplace photo.jpg par ton fichier -->
+            <img src="WhatsApp Image 2025-09-21 à 06.43.20_06b6f24b.jpg" alt="Photo de KOUAME N’GUETTA Marc Wilfried"
+                 onerror="this.remove(); this.parentElement.insertAdjacentHTML('beforeend','<div class=&quot;placeholder&quot;>PHOTO</div>')" />
+          </div>
+        </div>
+
+
+         <div class="side-block contact">
+          <h3 class="side-title"> PROFIL</h3>
+          <ul class="side-list">
+            <li class="side-muted"> Bonne capacité d'apprentissage et</li>
+            <li class="side-muted"> excellent esprit , je suis pret à</li>
+            <li class="side-muted">contribuer activement à la </li>
+             <li class="side-muted"> performance de votre entrprise </li>
+              <li class="side-muted"></li>
+          </ul>
+        </div>
+
+        <div class="side-block contact">
+          <h3 class="side-title">Coordonnées</h3>
+          <ul class="side-list">
+            <li class="side-muted">Abidjan, Cote D’Ivoire</li>
+            <li><a href="mailto:kouamewilfried186@gmail.com">kouamewilfried186@gmail.com</a></li>
+            <li>+225 0171993266</li>
+          </ul>
+        </div>
+
+        <div class="side-block">
+          <h3 class="side-title">Langues</h3>
+          <ul class="side-list">
+            <li>Francais — <span class="side-muted">courant</span></li>
+            <li>Anglais — <span class="side-muted">intermédiaire</span></li>
+          </ul>
+        </div>
+
+        <div class="side-block">
+          <h3 class="side-title">Compétences</h3>
+          <div class="chips" aria-label="Liste de compétences">
+            <span class="chip">Langages de programmation</span>
+            <span class="chip">Bases de données</span>
+            <span class="chip">Systèmes d'exploitation</span>
+            <span class="chip">Résolution de problèmes</span>
+            <span class="chip">Dépannage</span>
+          </div>
+        </div>
+
+        <div class="side-block">
+          <h3 class="side-title">Centres d'intérêts</h3>
+          <div class="chips">
+            <span class="chip">Technologie</span>
+            <span class="chip">Sport</span>
+            <span class="chip">Musique</span>
+            <span class="chip">Cuisine</span>
+          </div>
+        </div>
+      </aside>
+
+      <main>
+        <div class="headline">
+          <h1>KOUAME N’GUETTA<br/>MARC WILFRIED</h1>
+          <div class="role">INFORMATICIEN</div>
+        </div>
+
+        <div class="grid">
+          <section class="card">
+            <div class="section-title">
+              <span>Compétences (détail)</span><span class="line"></span>
+            </div>
+            <div class="timeline">
+              <div class="item">
+                <ul class="bullets">
+                  <li><strong>Gestion des Réseaux :</strong> Maîtrise des fondamentaux des réseaux, des protocoles de communication et des systèmes de sécurité.</li>
+                  <li><strong>Implémentation de Solutions :</strong> Expérience dans l'implémentation de contrôleurs de domaine, optimisant la gestion et l'accès aux ressources réseau.</li>
+                  <li><strong>Technologies Web :</strong> Connaissance des principes du développement web, favorisant l'intégration de solutions novatrices dans les systèmes d'information.</li>
+                  <li><strong>Résolution de Problèmes :</strong> Capacité à diagnostiquer rapidement les problèmes techniques et à concevoir des solutions efficaces.</li>
+                  <li><strong>Travail d'Équipe :</strong> Forte aptitude à collaborer avec des équipes pluridisciplinaires pour atteindre des objectifs communs.</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="section-title">
+              <span>Expériences professionnelles</span><span class="line"></span>
+            </div>
+            <div class="timeline">
+              <div class="item">
+                <ul class="bullets">
+                  <li>Contribué à la conception et à l'optimisation de l'infrastructure réseau, améliorant la performance de <strong>20%</strong>.</li>
+                  <li>Participé à l'implémentation d'un contrôleur de domaine, facilitant la gestion centralisée des utilisateurs et des ressources.</li>
+                  <li>Collaboré avec l'équipe technique pour résoudre les problèmes de connectivité, améliorant la satisfaction des utilisateurs finale de <strong>30%</strong>.</li>
+                  <li>Participation à la planification et à la mise en œuvre de projets d'infrastructure.</li>
+                </ul>
+                <!-- Optionnel: entreprise / dates -->
+                <!-- <div class="muted" style="margin-top:10px;">Entreprise — 2025 | Abidjan</div> -->
+              </div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="section-title">
+              <span>Certifications</span><span class="line"></span>
+            </div>
+            <div class="timeline">
+              <div class="item">
+                <div style="line-height:1.7; color: rgba(234,240,255,.90);">
+                  En <strong>Notions de base sur les réseaux</strong> proposé par
+                  <strong>Ecole superieure Africaine des TIC (ESATIC)</strong>
+                  dans le cadre du programme <strong>Cisco Networking Academy</strong>.
+                  <div style="margin-top:10px;">
+                    <a class="credly" href="https://www.credly.com/badges/1c99581a-4573-491b-9319-454107ef44ee/whatsapp">
+                      https://www.credly.com/badges/1c99581a-4573-491b-9319-454107ef44ee/whatsapp
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="section-title">
+              <span>Formations</span><span class="line"></span>
+            </div>
+            <div class="timeline">
+              <div class="item">
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                  <div style="font-weight:900; letter-spacing:.02em;">Licence en Informatique</div>
+                  <div class="muted">Université Internationale Des Science Et Technologie, Abidjan, Cote D’Ivoire | 2024 - 2026</div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
